@@ -15,7 +15,7 @@ COPY frontend/public ./public
 COPY frontend/index.html ./
 COPY frontend/vite.config.js ./
 COPY frontend/tailwind.config.js ./
-COPY frontend/postcss.config.js ./
+COPY frontend/postcss.config.cjs ./
 
 # Build frontend
 RUN npm run build
