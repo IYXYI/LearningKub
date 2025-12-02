@@ -7,6 +7,10 @@ yarn-error.log
 package-lock.json
 yarn.lock
 
+# Frontend Build
+frontend/dist/
+frontend/build/
+
 # IDE
 .vscode/
 .idea/
@@ -20,11 +24,6 @@ yarn.lock
 .env.local
 .env.*.local
 
-# Build
-dist/
-build/
-out/
-
 # OS
 Thumbs.db
 .DS_Store
@@ -32,3 +31,6 @@ Thumbs.db
 # Testing
 coverage/
 .nyc_output/
+
+# Fly.io
+fly.toml

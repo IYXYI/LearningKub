@@ -1,11 +1,12 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: kubernetes-flyio-app
+  name: fullstack-app
   labels:
-    app: kubernetes-flyio-app
+    app: fullstack-app
   annotations:
     kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
   rules:
   - host: example.com
@@ -15,6 +16,13 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: kubernetes-flyio-app
+            name: fullstack-app
+            port:
+              number: 80
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: fullstack-app
             port:
               number: 80

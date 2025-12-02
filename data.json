@@ -1,0 +1,69 @@
+{
+  "title": "Modern Web Application",
+  "description": "A full-stack app built with React, Vite, and Express",
+  "features": [
+    {
+      "id": 1,
+      "title": "React + Vite",
+      "description": "Lightning-fast development with Vite and modern React patterns",
+      "icon": "⚡",
+      "color": "bg-blue-100"
+    },
+    {
+      "id": 2,
+      "title": "Responsive Design",
+      "description": "Works beautifully on desktop, tablet, and mobile devices",
+      "icon": "📱",
+      "color": "bg-purple-100"
+    },
+    {
+      "id": 3,
+      "title": "TailwindCSS",
+      "description": "Utility-first CSS framework for rapid UI development",
+      "icon": "🎨",
+      "color": "bg-pink-100"
+    },
+    {
+      "id": 4,
+      "title": "Express Backend",
+      "description": "Fast and minimal Node.js web framework with CORS support",
+      "icon": "🔧",
+      "color": "bg-green-100"
+    },
+    {
+      "id": 5,
+      "title": "Kubernetes Ready",
+      "description": "Includes complete k8s manifests for production deployment",
+      "icon": "☸️",
+      "color": "bg-indigo-100"
+    },
+    {
+      "id": 6,
+      "title": "Fly.io Compatible",
+      "description": "Deploy instantly to Fly.io with included Docker configuration",
+      "icon": "🚀",
+      "color": "bg-orange-100"
+    }
+  ],
+  "stats": [
+    {
+      "label": "Build Time",
+      "value": "< 1 second",
+      "icon": "⚡"
+    },
+    {
+      "label": "Bundle Size",
+      "value": "~150KB",
+      "icon": "📦"
+    },
+    {
+      "label": "Lighthouse Score",
+      "value": "90+",
+      "icon": "✨"
+    }
+  ],
+  "cta": {
+    "primary": "Get Started",
+    "secondary": "Learn More"
+  }
+}

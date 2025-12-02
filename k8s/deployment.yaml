@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kubernetes-flyio-app
+  name: fullstack-app
   labels:
-    app: kubernetes-flyio-app
+    app: fullstack-app
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: kubernetes-flyio-app
+      app: fullstack-app
   template:
     metadata:
       labels:
-        app: kubernetes-flyio-app
+        app: fullstack-app
     spec:
       containers:
       - name: app
-        image: kubernetes-flyio-app:latest
+        image: fullstack-app:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
@@ -28,22 +28,22 @@ spec:
           value: "production"
         resources:
           requests:
-            memory: "64Mi"
+            memory: "128Mi"
             cpu: "100m"
           limits:
-            memory: "128Mi"
+            memory: "256Mi"
             cpu: "500m"
         livenessProbe:
           httpGet:
-            path: /health
+            path: /api/health
             port: 8080
-          initialDelaySeconds: 10
+          initialDelaySeconds: 15
           periodSeconds: 10
           timeoutSeconds: 3
           failureThreshold: 3
         readinessProbe:
           httpGet:
-            path: /ready
+            path: /api/health
             port: 8080
           initialDelaySeconds: 5
           periodSeconds: 5

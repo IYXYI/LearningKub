@@ -1,32 +1,49 @@
-# Build stage
-FROM node:18-alpine AS builder
+# Stage 1: Build frontend
+FROM node:18-alpine AS frontend-builder
 
-WORKDIR /app
+WORKDIR /app/frontend
 
-# Copy package files
-COPY package*.json ./
+# Copy frontend dependencies
+COPY frontend/package*.json ./
 
-# Install dependencies
-RUN npm install --production
+# Install frontend dependencies
+RUN npm install
 
-# Runtime stage
+# Copy frontend source
+COPY frontend/src ./src
+COPY frontend/public ./public
+COPY frontend/index.html ./
+COPY frontend/vite.config.js ./
+COPY frontend/tailwind.config.js ./
+COPY frontend/postcss.config.js ./
+
+# Build frontend
+RUN npm run build
+
+# Stage 2: Build final image with backend
 FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy node_modules from builder
-COPY --from=builder /app/node_modules ./node_modules
+# Copy root package files
+COPY package*.json ./
 
-# Copy application code
-COPY app.js .
-COPY package.json .
+# Install backend dependencies (production only)
+RUN npm install --production
+
+# Copy backend server code
+COPY server.js .
+COPY data.json .
+
+# Copy built frontend from builder stage
+COPY --from=frontend-builder /app/frontend/dist ./dist
 
 # Expose port
 EXPOSE 8080
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:8080/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:8080/api/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
 
 # Run the application
-CMD ["node", "app.js"]
+CMD ["npm", "start"]

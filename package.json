@@ -1,21 +1,25 @@
 {
-  "name": "kubernetes-flyio-app",
-  "version": "1.0.0",
-  "description": "A simple Node.js Express app ready to deploy on Kubernetes and Fly.io",
-  "main": "app.js",
+  "name": "fullstack-flyio-app",
+  "version": "2.0.0",
+  "description": "A modern full-stack web app with React + Vite frontend and Express backend, ready for Kubernetes and Fly.io deployment",
+  "main": "server.js",
   "scripts": {
-    "start": "node app.js",
-    "dev": "node app.js"
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build:frontend": "cd frontend && npm install && npm run build"
   },
   "keywords": [
+    "react",
+    "vite",
+    "express",
     "kubernetes",
     "flyio",
-    "express",
-    "nodejs"
+    "fullstack"
   ],
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
   }
 }

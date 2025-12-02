@@ -1,155 +1,259 @@
-# Kubernetes + Fly.io Ready Node.js App
+# Modern Full-Stack Web App - React + Vite + Express + Kubernetes
 
-A production-ready Node.js Express application with complete Kubernetes manifests, ready to deploy on Fly.io or any Kubernetes cluster.
+A production-ready full-stack web application with a React + Vite frontend and Express backend, complete with Kubernetes manifests and Fly.io deployment configuration.
+
+## 🏗️ Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                   Browser / Client                       │
+└────────────────────────┬────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────┐
+│  Frontend (React + Vite)                                │
+│  - Header with Navigation                              │
+│  - Hero Section                                         │
+│  - Feature Cards Grid                                   │
+│  - Stats Section                                        │
+│  - Footer                                               │
+│  - Styled with TailwindCSS                             │
+└────────────────────────┬────────────────────────────────┘
+                         │
+                         │ /api/* requests
+                         ▼
+┌─────────────────────────────────────────────────────────┐
+│  Backend (Express.js)                                   │
+│  - Serves built frontend                               │
+│  - /api/data - Returns feature/stats content           │
+│  - /api/health - Health check endpoint                 │
+│  - CORS enabled for cross-origin requests              │
+└─────────────────────────────────────────────────────────┘
+```
 
 ## 📋 Project Structure
 
 ```
 .
-├── app.js                 # Express application
-├── package.json           # Node.js dependencies
-├── Dockerfile             # Multi-stage Docker build
-├── .gitignore             # Git ignore rules
-├── k8s/                   # Kubernetes manifests
-│   ├── deployment.yaml    # Pod deployment config
-│   ├── service.yaml       # Service (ClusterIP)
-│   └── ingress.yaml       # Ingress controller (optional)
-└── README.md              # This file
+├── frontend/                      # React + Vite frontend
+│   ├── src/
+│   │   ├── App.jsx               # Main app component
+│   │   ├── main.jsx              # Entry point
+│   │   ├── index.css             # TailwindCSS styles
+│   │   └── components/
+│   │       ├── Header.jsx        # Navigation header
+│   │       ├── Hero.jsx          # Hero section
+│   │       ├── Features.jsx      # Feature cards grid
+│   │       ├── Stats.jsx         # Stats showcase
+│   │       └── Footer.jsx        # Footer
+│   ├── index.html                # HTML template
+│   ├── package.json              # Frontend dependencies
+│   ├── vite.config.js            # Vite configuration
+│   ├── tailwind.config.js        # TailwindCSS config
+│   └── postcss.config.js         # PostCSS config
+│
+├── server.js                      # Express backend server
+├── data.json                      # Sample content data
+├── package.json                   # Backend dependencies
+├── Dockerfile                     # Multi-stage build
+├── .gitignore                     # Git ignore rules
+├── k8s/                           # Kubernetes manifests
+│   ├── deployment.yaml           # Pod deployment
+│   ├── service.yaml              # Service (ClusterIP)
+│   └── ingress.yaml              # Ingress with path routing
+└── README.md                      # This file
 ```
 
-## 🚀 Quick Start
+## 🚀 Quick Start - Local Development
 
 ### Prerequisites
 
-- Node.js 18+ (for local development)
-- Docker (for building the image)
-- kubectl (for Kubernetes deployment)
-- Fly.io CLI (for Fly.io deployment)
+- Node.js 18+ 
+- npm or yarn
+- Docker (for building container)
+- kubectl (for Kubernetes testing)
 
-### Local Development
-
-1. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-
-2. **Run the app locally:**
-   ```bash
-   npm start
-   ```
-
-   The app will be available at: `http://localhost:8080`
-
-3. **Test the endpoint:**
-   ```bash
-   curl http://localhost:8080
-   # Response: {"message":"Hello from Fly.io!"}
-   
-   curl http://localhost:8080/health
-   # Response: {"status":"healthy"}
-   ```
-
-## 🐳 Docker Build & Run
-
-### Build the Docker image
+### 1. Install & Run Backend
 
 ```bash
-docker build -t kubernetes-flyio-app:latest .
+# Install backend dependencies
+npm install
+
+# Start the backend server (runs on port 8080)
+npm start
+
+# In another terminal, you can test:
+curl http://localhost:8080/api/data
+curl http://localhost:8080/api/health
 ```
 
-### Run locally with Docker
+### 2. Install & Run Frontend (in separate terminal)
 
 ```bash
-docker run -p 8080:8080 kubernetes-flyio-app:latest
+cd frontend
+
+# Install frontend dependencies
+npm install
+
+# Start Vite dev server (runs on port 5173, proxies /api to port 8080)
+npm run dev
 ```
 
-Test: `curl http://localhost:8080`
+Visit: **http://localhost:5173**
 
-### Push to Docker Registry
+The frontend will automatically proxy API calls to `http://localhost:8080/api`
 
-**For Fly.io:**
+### 3. Build Frontend for Production
+
 ```bash
-docker tag kubernetes-flyio-app:latest registry.fly.io/YOUR_APP_NAME:latest
-docker push registry.fly.io/YOUR_APP_NAME:latest
+cd frontend
+npm run build
+
+# Built files go to: frontend/dist/
 ```
+
+## 🐳 Docker Build & Deploy Locally
+
+### Build Docker Image
+
+```bash
+# Build the image (multi-stage: builds frontend, then creates final image with backend)
+docker build -t fullstack-app:latest .
+
+# Check the image size
+docker images | grep fullstack-app
+```
+
+### Run Locally with Docker
+
+```bash
+docker run -p 8080:8080 fullstack-app:latest
+
+# Test
+curl http://localhost:8080                    # Frontend
+curl http://localhost:8080/api/data           # API
+curl http://localhost:8080/api/health         # Health check
+```
+
+Visit: **http://localhost:8080**
+
+### Push to Registry
 
 **For Docker Hub:**
 ```bash
-docker tag kubernetes-flyio-app:latest YOUR_DOCKERHUB_USERNAME/kubernetes-flyio-app:latest
-docker push YOUR_DOCKERHUB_USERNAME/kubernetes-flyio-app:latest
+docker tag fullstack-app:latest YOUR_USERNAME/fullstack-app:latest
+docker push YOUR_USERNAME/fullstack-app:latest
+```
+
+**For Fly.io Registry:**
+```bash
+docker tag fullstack-app:latest registry.fly.io/YOUR_APP_NAME:latest
+docker push registry.fly.io/YOUR_APP_NAME:latest
 ```
 
 ## ☸️ Kubernetes Deployment
 
-### Deploy to a Kubernetes Cluster
+### Deploy to Kubernetes Cluster
 
-**Apply all manifests:**
 ```bash
+# Apply all manifests
 kubectl apply -f k8s/
-```
 
-**Or apply individually:**
-```bash
+# Or apply individually:
 kubectl apply -f k8s/deployment.yaml
 kubectl apply -f k8s/service.yaml
-kubectl apply -f k8s/ingress.yaml  # Optional
+kubectl apply -f k8s/ingress.yaml
 ```
 
-### Monitor the Deployment
+### Monitor Deployment
 
 ```bash
 # Watch deployment status
 kubectl get deployments -w
 
-# Check pods
+# Check running pods
 kubectl get pods
 
-# View pod logs
-kubectl logs -l app=kubernetes-flyio-app -f
+# View logs from all pods
+kubectl logs -l app=fullstack-app -f
 
-# Describe deployment for details
-kubectl describe deployment kubernetes-flyio-app
+# Describe the deployment
+kubectl describe deployment fullstack-app
+
+# Check service
+kubectl get svc fullstack-app
 ```
 
-### Test the Service
+### Test the Application
 
-**Using port-forward (ClusterIP):**
+**Using port-forward:**
 ```bash
-kubectl port-forward svc/kubernetes-flyio-app 8080:80
-# Then test: curl http://localhost:8080
+kubectl port-forward svc/fullstack-app 8080:80
+# Visit: http://localhost:8080
 ```
 
-**Inside the cluster:**
+**Using exec into a pod:**
+```bash
+# Get pod name
+POD=$(kubectl get pods -l app=fullstack-app -o jsonpath='{.items[0].metadata.name}')
+
+# Execute curl inside pod
+kubectl exec -it $POD -- curl http://localhost:8080/api/data
+```
+
+**Using a debug pod:**
 ```bash
 kubectl run -it --rm debug --image=curlimages/curl --restart=Never -- \
-  curl http://kubernetes-flyio-app/
+  curl http://fullstack-app/api/data
 ```
 
 ### Scale the Deployment
 
 ```bash
-kubectl scale deployment kubernetes-flyio-app --replicas=3
-kubectl get pods  # Verify 3 pods running
+kubectl scale deployment fullstack-app --replicas=3
+kubectl get pods  # Should show 3 pods running
+```
+
+### Update the Image
+
+```bash
+# Update deployment with new image
+kubectl set image deployment/fullstack-app \
+  app=fullstack-app:v2 --record
+
+# Check rollout status
+kubectl rollout status deployment/fullstack-app
+
+# View rollout history
+kubectl rollout history deployment/fullstack-app
+
+# Rollback if needed
+kubectl rollout undo deployment/fullstack-app
 ```
 
 ### Cleanup
 
 ```bash
 kubectl delete -f k8s/
+# or
+kubectl delete deployment,service,ingress fullstack-app
 ```
 
 ## 🪁 Fly.io Deployment
 
-### Option 1: Using Fly CLI
+### Option 1: Using Fly CLI (Recommended)
 
-1. **Install Fly CLI:** [https://fly.io/docs/getting-started/installing-flyctl/](https://fly.io/docs/getting-started/installing-flyctl/)
+1. **Install Fly CLI:**
+   ```bash
+   curl -L https://fly.io/install.sh | sh
+   ```
 
 2. **Login to Fly:**
    ```bash
    flyctl auth login
    ```
 
-3. **Create a new Fly app (if not already done):**
+3. **Create a new app (if not already created):**
    ```bash
    flyctl launch --name YOUR_APP_NAME
    ```
@@ -159,27 +263,26 @@ kubectl delete -f k8s/
    flyctl deploy
    ```
 
-5. **View deployment status:**
+5. **Monitor deployment:**
    ```bash
    flyctl status
-   flyctl logs
+   flyctl logs --follow
    ```
 
-6. **Access your app:**
+6. **Open the app:**
    ```bash
    flyctl open
    ```
 
-### Option 2: Manual Docker Push & Fly.io Deploy
+### Option 2: Manual Push to Fly Registry
 
-1. **Build and push image to Fly registry:**
+1. **Build and tag:**
    ```bash
    docker build -t registry.fly.io/YOUR_APP_NAME:latest .
    docker push registry.fly.io/YOUR_APP_NAME:latest
    ```
 
-2. **Deploy using fly.toml:**
-   Create or update `fly.toml`:
+2. **Create fly.toml:**
    ```toml
    app = "YOUR_APP_NAME"
    
@@ -206,89 +309,197 @@ kubectl delete -f k8s/
 
 ### Option 3: Web Terminal (Minimal Setup)
 
-1. Go to [https://fly.io/dashboard](https://fly.io/dashboard)
-2. Create a new app from the dashboard
+1. Go to [Fly.io Dashboard](https://fly.io/dashboard)
+2. Create a new app
 3. Connect via web terminal
-4. Clone this repo or upload files
+4. Clone this repository or upload files
 5. Run:
    ```bash
    flyctl deploy
    ```
 
-## 📊 Health Checks & Monitoring
+## 🎨 Customization Guide
 
-The app includes Kubernetes probes for reliability:
+### Change Colors & Branding
 
-- **Liveness Probe:** `/health` - Detects if the app is alive
-- **Readiness Probe:** `/ready` - Detects if the app is ready to accept traffic
+Edit `frontend/src/components/*.jsx` and `frontend/src/index.css`:
 
-The Dockerfile includes a HEALTHCHECK for Docker:
-```dockerfile
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:8080/health', ...)"
+```jsx
+// Change header gradient (Header.jsx)
+<header className="bg-gradient-to-r from-YOUR-COLOR-600 to-YOUR-COLOR-600">
 ```
 
-## 🔧 Environment Variables
+**Available TailwindCSS colors:** `red`, `orange`, `yellow`, `green`, `blue`, `indigo`, `purple`, `pink`, etc.
 
-- `PORT`: Server port (default: 8080)
-- `NODE_ENV`: Environment (default: production)
+### Update Content
 
-Modify in `k8s/deployment.yaml` or set in Fly.io dashboard.
+Edit `data.json` to change features, stats, and titles:
 
-## 📦 Resource Limits
+```json
+{
+  "title": "Your Title",
+  "description": "Your description",
+  "features": [
+    {
+      "id": 1,
+      "title": "Feature Title",
+      "description": "Feature description",
+      "icon": "⚡",
+      "color": "bg-blue-100"
+    }
+  ]
+}
+```
 
-Kubernetes resource requests/limits (from `deployment.yaml`):
-- **Requests:** 64Mi memory, 100m CPU
-- **Limits:** 128Mi memory, 500m CPU
+### Modify Components
 
-Adjust based on your application needs.
+- **Header Navigation:** Edit `frontend/src/components/Header.jsx`
+- **Hero Section:** Edit `frontend/src/components/Hero.jsx`
+- **Feature Cards:** Edit `frontend/src/components/Features.jsx`
+- **Stats Display:** Edit `frontend/src/components/Stats.jsx`
+- **Footer:** Edit `frontend/src/components/Footer.jsx`
 
-## 🔒 Security Best Practices
+### Add New API Endpoints
 
-- Uses non-root Alpine images
-- Multi-stage Docker build for minimal image size
-- Resource limits enforced
-- Health checks configured
-- Readiness probes prevent traffic to unhealthy pods
+Edit `server.js`:
+
+```javascript
+app.get('/api/new-endpoint', (req, res) => {
+  res.json({ data: 'your data' });
+});
+```
+
+### Add Images
+
+Place images in `frontend/public/` and reference them in components:
+
+```jsx
+<img src="/image-name.jpg" alt="description" />
+```
+
+## 📊 API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/` | GET | Serves frontend (index.html) |
+| `/api/data` | GET | Returns feature/stats content (data.json) |
+| `/api/health` | GET | Health check for probes |
+
+## 🔒 Security Features
+
+- ✅ CORS enabled for API requests
+- ✅ Health checks configured for Kubernetes
+- ✅ Resource limits set (128Mi memory, 256Mi limit)
+- ✅ Liveness & readiness probes configured
+- ✅ Multi-stage Docker build minimizes image size
+- ✅ Production-grade Alpine Linux base image
+
+## 📦 Resource Requirements
+
+**Kubernetes Pod Resources:**
+- **Requests:** 128Mi memory, 100m CPU
+- **Limits:** 256Mi memory, 500m CPU
+
+**Docker Image Size:** ~150MB (includes Node 18 + frontend build + backend)
+
+Adjust in `k8s/deployment.yaml` based on your needs.
 
 ## 🐛 Troubleshooting
 
-### Pod stuck in Pending
+### Frontend not loading
 ```bash
+# Check if backend is running and serving static files
+curl -v http://localhost:8080/
+
+# Check frontend build
+ls frontend/dist/
+```
+
+### API returns 404
+```bash
+# Verify endpoint exists
+curl http://localhost:8080/api/data
+
+# Check server logs
+npm start  # or docker logs <container>
+```
+
+### Kubernetes pod stuck in CrashLoopBackOff
+```bash
+# Check logs
+kubectl logs POD_NAME
+
+# Describe pod for details
 kubectl describe pod POD_NAME
+
+# Check events
 kubectl get events --sort-by='.lastTimestamp'
 ```
 
-### CrashLoopBackOff
+### Port already in use
 ```bash
-kubectl logs POD_NAME
-kubectl describe pod POD_NAME
+# Find process using port 8080
+lsof -i :8080
+kill -9 PID
 ```
 
-### Service not accessible
+## 📚 Technology Stack
+
+| Component | Technology |
+|-----------|-----------|
+| Frontend | React 18, Vite 5, TailwindCSS 3 |
+| Backend | Node.js 18, Express 4 |
+| Containerization | Docker (multi-stage build) |
+| Orchestration | Kubernetes |
+| Deployment | Fly.io |
+| Styling | TailwindCSS + PostCSS |
+
+## 🚀 Performance Tips
+
+1. **Optimize Images:** Compress images before adding to `frontend/public/`
+2. **Code Splitting:** Implement React.lazy() for large components
+3. **Caching:** Add cache headers in Express for static files
+4. **Monitoring:** Use `kubectl top` to monitor resource usage
+
+## 📝 Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PORT` | 8080 | Server port |
+| `NODE_ENV` | production | Environment (development/production) |
+
+## 🔗 Useful Commands Cheat Sheet
+
 ```bash
-kubectl get svc
-kubectl describe svc kubernetes-flyio-app
-kubectl get endpoints
+# Local Development
+npm start                              # Backend
+cd frontend && npm run dev             # Frontend
+
+# Docker
+docker build -t fullstack-app:latest . # Build
+docker run -p 8080:8080 fullstack-app:latest  # Run
+
+# Kubernetes
+kubectl apply -f k8s/                  # Deploy
+kubectl get pods                       # List pods
+kubectl logs -l app=fullstack-app -f   # View logs
+kubectl port-forward svc/fullstack-app 8080:80  # Port forward
+
+# Fly.io
+flyctl launch --name APP_NAME          # Create app
+flyctl deploy                          # Deploy
+flyctl open                            # Open app
+flyctl logs -f                         # View logs
 ```
 
-### Fly.io deployment fails
-```bash
-flyctl logs --follow
-flyctl status
-```
-
-## 📚 Useful Resources
-
-- [Kubernetes Documentation](https://kubernetes.io/docs/)
-- [Fly.io Documentation](https://fly.io/docs/)
-- [Express.js Guide](https://expressjs.com/)
-- [Docker Best Practices](https://docs.docker.com/develop/dev-best-practices/)
-
-## 📝 License
+## 📄 License
 
 MIT
 
 ---
 
-**Ready to deploy!** Push to GitHub and start deploying to Kubernetes or Fly.io. 🚀
+**Ready to deploy! Push to GitHub and deploy to Fly.io or Kubernetes.** 🚀
+
+For detailed Kubernetes documentation: https://kubernetes.io/docs/
+For Fly.io docs: https://fly.io/docs/
+For React docs: https://react.dev/
