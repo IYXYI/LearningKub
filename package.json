@@ -1,0 +1,21 @@
+{
+  "name": "kubernetes-flyio-app",
+  "version": "1.0.0",
+  "description": "A simple Node.js Express app ready to deploy on Kubernetes and Fly.io",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node app.js"
+  },
+  "keywords": [
+    "kubernetes",
+    "flyio",
+    "express",
+    "nodejs"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
